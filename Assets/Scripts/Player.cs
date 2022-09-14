@@ -1,21 +1,26 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public float speed;
+    
     Rigidbody2D rb2d;
+    bool isJumping;
+
+    public float speed;
+    public float jumpForce;
+    public float jump;
+    public float maxJump;
+    Vector2 jumpDirection = new Vector2(0, 2);
 
     void Start()
     {
         rb2d = GetComponent<Rigidbody2D>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         Movement();
+        Jump();
     } 
     
     void Movement()
@@ -26,6 +31,20 @@ public class Player : MonoBehaviour
         {
             transform.Translate(transform.right * inputX * speed * Time.deltaTime);
         }
+    }
+    void Jump()
+    {
+        if (Input.GetButton("Jump") && jump < maxJump)
+        {
+            rb2d.velocity = jumpDirection * jumpForce;
+            jump++;
+        }
+    }
+
+    void isGrounded()
+    {
+        jump = 0;
+        isJumping = false;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -38,6 +57,11 @@ public class Player : MonoBehaviour
         if (collision.gameObject.CompareTag("Flag"))
         {
             GameManager.eventWinner?.Invoke();
+        }
+
+        if (collision.gameObject.CompareTag("Grounded"))
+        {
+            isGrounded();
         }
     }
 }
